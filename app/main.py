@@ -10,7 +10,7 @@ from app.data import Database
 from app.graph import chart
 from app.machine import Machine
 
-SPRINT = 1
+SPRINT = 3
 APP = Flask(__name__)
 
 
@@ -69,7 +69,7 @@ def model():
     db = Database()
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     filepath = os.path.join("app", "model.joblib")
-    if not os.path.exists(filepath):
+    if request.values.get("retrain", type=bool) or not os.path.exists(filepath):
         df = db.dataframe()
         machine = Machine(df[options])
         machine.save(filepath)

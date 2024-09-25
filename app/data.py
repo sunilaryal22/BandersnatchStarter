@@ -1,5 +1,4 @@
 from os import getenv
-
 from certifi import where
 from dotenv import load_dotenv
 from MonsterLab import Monster
@@ -11,9 +10,15 @@ class Database:
         # Connect to database using credentials from .env
         load_dotenv()
     
-        uri = "mongodb+srv://sunilaryal22:U8RB9wujjap20ePJ@cluster0.3wzj6yk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        uri = "mongodb+srv://sunilaryal22:U8RB9wujjap20ePJ@cluster0.3wzj6yk.mongodb.net/"
+
         self.database = MongoClient(uri, tlsCAFile=where())["Bandersnatch"]
         self.collection = self.database.get_collection("Monsters")
+        
+    def dataframe(self) -> DataFrame:
+        documents = list(self.collection.find({}, {"_id":False}))
+        return DataFrame(documents)
+        
     def seed(self, amount):
        monsters = [Monster().to_dict() for _ in range(amount)]
        self.collection.insert_many(monsters)
@@ -24,10 +29,6 @@ class Database:
     def count(self) -> int:
        return self.collection.count_documents({})
 
-    def dataframe(self) -> DataFrame:
-        documents = list(self.collection.find())
-        return DataFrame(documents)
-
     def html_table(self) -> str:
         # add a base case for dataframe being empty
         df = self.dataframe()
@@ -37,6 +38,5 @@ class Database:
 if __name__ == "__main__":
     print('this is a run file')
     db = Database()
-    db.html_table()
-    db.reset()
+    db.seed(10)
     
